@@ -23,8 +23,10 @@
     "eject": "react-scripts eject",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css}",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "lint-staged": "lint-staged --config lint-staged.js",
+    "husky-install": "husky install"
   },
   "browserslist": {
     "production": [
@@ -42,6 +44,9 @@
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.4"
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.2",
+    "prettier": "^2.8.4",
+    "tsc-files": "^1.1.3"
   }
 }
