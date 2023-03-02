@@ -1,6 +1,12 @@
-# Getting Started with Create React App
+# The Resident Zombie Front-end App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Prerequisites
+
+- NodeJS +18.14.0
+- NPM ~> 9.5.0
+- Yarn ~> 1.22.0
+
+** Use Yarn to manage packages and run the scripts **
 
 ## Available Scripts
 
