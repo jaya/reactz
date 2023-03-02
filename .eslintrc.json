@@ -20,6 +20,6 @@
     "project": "./tsconfig.json"
   },
   "plugins": ["react", "@typescript-eslint"],
-  "ignorePatterns": ["build/*"],
+  "ignorePatterns": ["build/*", "lint-staged.js"],
   "rules": {}
 }
