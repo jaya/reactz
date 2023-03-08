@@ -1,4 +1,4 @@
-import { AppBar, Button, IconButton, Menu, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Button, IconButton, LinearProgress, Menu, Toolbar, Typography } from '@mui/material';
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from "react";
 import ExitToApp from '@mui/icons-material/ExitToApp';
@@ -56,10 +56,6 @@ export default function Home() {
     }
   }, [mapPosition])
 
-  if (loading || !mapPosition) {
-    return <p>Loading...</p>
-  }
-
   return (
     <>
       <AppBar color='primary'>
@@ -82,17 +78,24 @@ export default function Home() {
           </div>
         </Toolbar>
       </AppBar>
-      <DynamicMap 
-        center={mapPosition} 
-        width='100vw' 
-        height='94vh' 
-        marginTop='6vh' 
-        markers={survivors.map(survivor => ({
-          id: survivor.id,
-          position: [survivor.latitude, survivor.longitude],
-          children: <SurvivorPopup survivor={survivor}/>
-        }))}
-      />
+
+      {loading || !mapPosition ? (
+        <Box sx={{ width: '100%' }}>
+          <LinearProgress />
+        </Box>
+      ) : (
+        <DynamicMap 
+          center={mapPosition} 
+          width='100vw' 
+          height='94vh' 
+          marginTop='6vh' 
+          markers={survivors.map(survivor => ({
+            id: survivor.id,
+            position: [survivor.latitude, survivor.longitude],
+            children: <SurvivorPopup survivor={survivor}/>
+          }))}
+        />
+      )}
     </>
 
   )
