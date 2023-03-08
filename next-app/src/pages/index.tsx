@@ -1,70 +1,99 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
+import { AppBar, Button, IconButton, Menu, Toolbar, Typography } from '@mui/material';
+import dynamic from 'next/dynamic'
+import { useEffect, useState } from "react";
+import ExitToApp from '@mui/icons-material/ExitToApp';
+import { api } from '../services/api';
+import { Survivor } from '../types/survivor';
+import { SurvivorPopup } from '../components/SurvivorPopup';
+
+const DynamicMap = dynamic(() => import('../components/Map'), { 
+  ssr: false,
+})
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
+  const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
+  const [survivors, setSurvivors] = useState<Survivor[]>([]);
+  const [survivorId, setSurvivorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      const { latitude, longitude } = coords;
+
+      setMapPosition([latitude, longitude]);
+      setLoading(false);
+    });
+
+    const localStorageSurvivorId = localStorage.getItem('@reactz:survivorId');
+
+    if(localStorageSurvivorId) {
+      setSurvivorId(localStorageSurvivorId);
+    } else {
+      // GO TO LOGIN PAGE
+    }
+  }, [])
+
+  useEffect(() => {
+    if(survivorId) {
+      navigator.geolocation.watchPosition(({ coords }) => {
+        const { latitude, longitude } = coords;
+
+        api.put(`/api/v1/survivors/${survivorId}`, {
+          latitude,
+          longitude,
+        }).then(response => {
+          console.log(response.data.data)
+        }).catch(console.error);
+      })
+    }
+  }, [survivorId])
+
+  useEffect(() => {
+    if(mapPosition) {
+      api.get('/api/v1/survivors').then(response => {
+        setSurvivors(response.data.data);
+      }).catch(console.error);
+    }
+  }, [mapPosition])
+
+  if (loading || !mapPosition) {
+    return <p>Loading...</p>
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next app</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <>
+      <AppBar color='primary'>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            The Resident Zombie
+          </Typography>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js</a> on Docker Compose!
-        </h1>
+          <div>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={() => {}}
+                color="inherit"
+              >
+                <ExitToApp />
+              </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+      <DynamicMap 
+        center={mapPosition} 
+        width='100vw' 
+        height='94vh' 
+        marginTop='6vh' 
+        markers={survivors.map(survivor => ({
+          id: survivor.id,
+          position: [survivor.latitude, survivor.longitude],
+          children: <SurvivorPopup survivor={survivor}/>
+        }))}
+      />
+    </>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
   )
 }
