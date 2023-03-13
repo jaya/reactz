@@ -5,6 +5,7 @@ import ExitToApp from '@mui/icons-material/ExitToApp';
 import { api } from '../services/api';
 import { Survivor } from '../types/survivor';
 import { SurvivorPopup } from '../components/SurvivorPopup';
+import { Dashboard } from '../components/Dashboard';
 
 const DynamicMap = dynamic(() => import('../components/Map'), { 
   ssr: false,
@@ -38,7 +39,7 @@ export default function Home() {
       navigator.geolocation.watchPosition(({ coords }) => {
         const { latitude, longitude } = coords;
 
-        api.put(`/api/v1/survivors/${survivorId}`, {
+        api.put(`/survivors/${survivorId}`, {
           latitude,
           longitude,
         }).then(response => {
@@ -50,7 +51,7 @@ export default function Home() {
 
   useEffect(() => {
     if(mapPosition) {
-      api.get('/api/v1/survivors').then(response => {
+      api.get('/survivors').then(response => {
         setSurvivors(response.data.data);
       }).catch(console.error);
     }
@@ -84,17 +85,20 @@ export default function Home() {
           <LinearProgress />
         </Box>
       ) : (
-        <DynamicMap 
-          center={mapPosition} 
-          width='100vw' 
-          height='94vh' 
-          marginTop='6vh' 
-          markers={survivors.map(survivor => ({
-            id: survivor.id,
-            position: [survivor.latitude, survivor.longitude],
-            children: <SurvivorPopup survivor={survivor}/>
-          }))}
-        />
+        <>
+          <Dashboard />
+          <DynamicMap 
+            center={mapPosition} 
+            width='100vw' 
+            height='94vh' 
+            marginTop='6vh' 
+            markers={survivors.map(survivor => ({
+              id: survivor.id,
+              position: [survivor.latitude, survivor.longitude],
+              children: <SurvivorPopup survivor={survivor}/>
+            }))}
+          />
+        </>
       )}
     </>
 
